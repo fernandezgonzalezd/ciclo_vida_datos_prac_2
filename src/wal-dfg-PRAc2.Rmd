@@ -3,8 +3,9 @@ title: 'Práctica 2: Limpieza y validación de los datos'
 author: "Waziri Ajibola Lawal, David Fernández González"
 date: "1/3/2021"
 output:
-  html_document
-    
+  pdf_document: default
+  html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -23,6 +24,8 @@ Primer contacto con el conjunto de datos, visualizamos su estructura.
 # Cargamos los paquetes R que vamos a usar
 library(ggplot2)
 library(dplyr)
+library(corrplot)
+library(psych)
 
 # Cargamos el fichero de datos
 redWineData <- read.csv('winequality-red.csv',stringsAsFactors = FALSE, header = TRUE)
@@ -44,11 +47,19 @@ head(redWineData)
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Estadísticas básicas
 summary(redWineData)
+
+
+describe(redWineData)
+
 ```
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Verificamos si existen valores vacios en el conjunto de datos
 colSums(is.na(redWineData))
+
+#Correlation Heatmap of Variables
+corrplot(cor(redWineData))
+
 ```
 
 El conjunto de datos de vino tinto contiene 1599 observaciones, 11 predictores y 1 valor categórico que indica la calidad del vino. Todos los predictores son valores numéricos, los resultados son enteros. Como podemos observar, no existen valores vacios en el conjunto de datos.
