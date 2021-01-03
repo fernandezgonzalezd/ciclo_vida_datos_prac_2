@@ -11,3 +11,4 @@ src/output/**
 .idea/inspectionProfiles
 .idea/*.xml
 .idea/.name
+.~lock*
