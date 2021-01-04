@@ -183,6 +183,39 @@ dim(eliminated_outliers)
 
 ## 4. Análisis de los datos
 
+```{r, analisis_datos,eval=TRUE,echo=TRUE}
+
+
+par(mfrow=c(2,2))
+for(i in 1:ncol(eliminated_outliers)) {
+  if (is.numeric(eliminated_outliers[,i])){
+    qqnorm(eliminated_outliers[,i],main = paste("Normal Q-Q Plot ",colnames(eliminated_outliers)[i]))
+    qqline(eliminated_outliers[,i],col="red")
+    hist(eliminated_outliers[,i], 
+      main=paste("Hist. for ", colnames(eliminated_outliers)[i]), 
+      xlab=colnames(eliminated_outliers)[i], freq = FALSE)
+   
+  
+ 
+  }
+}
+
+
+par(mfrow=c(1,1))
+
+
+shapiro.test(eliminated_outliers$fixed.acidity);
+  
+shapiro.test(eliminated_outliers$citric.acid);
+
+shapiro.test(eliminated_outliers$sulphates);
+
+
+shapiro.test(eliminated_outliers$alcohol);
+
+
+
+```
 
 ### 4.1. Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar).
 
