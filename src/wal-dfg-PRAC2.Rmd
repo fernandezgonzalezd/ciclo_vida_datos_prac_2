@@ -1,16 +1,14 @@
 ---
 title: 'Práctica 2: Limpieza y validación de los datos'
 author: "Waziri Ajibola Lawal, David Fernández González"
-date: "1/3/2021"
+date: '`r format(Sys.Date(),"%e de %B, %Y")`'
 output:
-  pdf_document: default
+  pdf_document: 
+    toc: yes
+    toc_depth: 3
   html_document: default
   word_document: default
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ******
 # Detalles de la actividad
@@ -19,9 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Descripción
 
-En esta práctica se elabora un caso práctico orientado a aprender a identificar los datos
-relevantes para un proyecto analítico y usar las herramientas de integración, limpieza, validación
-y análisis de las mismas.
+En esta práctica se elabora un caso práctico orientado a aprender a identificar los datos relevantes para un proyecto analítico y usar las herramientas de integración, limpieza, validación y análisis de las mismas.
 
 ## Competencias
 
@@ -44,7 +40,26 @@ problema planteado en el proceso analítico.
 * Desarrollar las habilidades de aprendizaje que les permitan continuar estudiando de un modo que tendrá que ser en gran medida autodirigido o autónomo.
 * Desarrollar la capacidad de búsqueda, gestión y uso de información y recursos en el ámbito de la ciencia de datos.
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 
+# Cargamos los paquetes R que vamos a usar
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(psych)
+library(nortest)
+
+if(!require(corrplot)){
+    install.packages('corrplot', repos='http://cran.us.r-project.org')
+    library(corrplot)
+}
+
+if(!require(ggcorrplot)){
+    install.packages('ggcorrplot', repos='http://cran.us.r-project.org')
+    library(ggcorrplot)
+}
+```
 ******
 # Realización de la práctica
 ******
@@ -78,29 +93,18 @@ El conjunto de datos que se va a analizar es el de Red Wine Quality y se ha obte
 * quality: valor que describe la calidad del vino (basada en datos sensoriales, puntuación entre 0 y 10).
 
 
-El objetuvo principal es encontrar que variables ofrecen más información sobre la calidad del vino. También intentaremos hacer predicciones de la calidad de un vino, y comprobar si se corresponde con su calidad real.
+El objetivo principal es encontrar que variables ofrecen más información sobre la calidad del vino. También intentaremos hacer predicciones de la calidad de un vino, y comprobar si se corresponde con su calidad real.
 
 \newpage
 ## 2. Integración y selección de los datos de interés a analizar.
 
 Primer contacto con el conjunto de datos, visualizamos su estructura.  
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Cargamos los paquetes R que vamos a usar
-library(ggplot2)
-library(dplyr)
-library(psych)
-library(nortest)
 
-if(!require(corrplot)){
-    install.packages('corrplot', repos='http://cran.us.r-project.org')
-    library(corrplot)
-}
 
-if(!require(ggcorrplot)){
-    install.packages('ggcorrplot', repos='http://cran.us.r-project.org')
-    library(ggcorrplot)
-}
+
+```{r, carga_archivo,eval=TRUE,echo=TRUE}
+
 
 # Cargamos el fichero de datos
 redWineData <- read.csv('winequality-red.csv',stringsAsFactors = FALSE, header = TRUE)
@@ -119,9 +123,7 @@ str(redWineData)
 
 # Verificamos la distribución de los datos  
 head(redWineData)
-```
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Estadísticas básicas, verificamos algunas métricas sobre las variables
 summary(redWineData)
 
@@ -142,7 +144,8 @@ Todos los predictores son valores numéricos, los resultados son enteros.
 
 ### 3.1. ¿Los datos contienen ceros o elementos vacíos? ¿Cómo gestionarías cada uno de estos casos?
 Como podemos observar, no existen valores vacios en nuestro conjunto de datos.
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r, elementos_vacions,eval=TRUE,echo=TRUE}
+
 # Verificamos si existen valores vacios en el conjunto de datos
 colSums(is.na(redWineData))
 ```
@@ -151,7 +154,7 @@ colSums(is.na(redWineData))
 ### 3.2. Identificación y tratamiento de valores extremos.
 Las métricas del conjunto de datos nos muestran que la mayoría de las variables tienen un rango amplio en comparación con el rango intercuartil, lo que puede indicar una dispersión en los datos y la presencia de valores atípicos. Investigamos más a fondo produciendo diagramas de caja para cada una de las variables:
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r, valores extremos,eval=TRUE,echo=TRUE}
 oldpar = par(mfrow = c(2,6))
 for ( i in 1:11 ) {
   boxplot(redWineData[[i]])
@@ -160,17 +163,18 @@ for ( i in 1:11 ) {
 par(oldpar)
 ```
 
-Para obtener mas información sobre la posición de los valores atípicos, podemos usar la funciñon pairs() con la que obtendremos una matriz de gráfico de dispersión.
+Para obtener mas información sobre la posición de los valores atípicos, podemos usar la función pairs(), con la que obtendremos una matriz de gráfico de dispersión.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r, pairs_function,eval=TRUE,echo=TRUE}
 pairs(redWineData[, -grep("quality", colnames(redWineData))])
 ```
 
 Podemos ver que todas las variables contienen valores atípicos. Estos valores atípicos se encuentran en los extremos superiores.
 
-Procedemos a la generación de histogramas y de las gráficas quantile-quantile para entender la distribución de cada variable (predictor) sin eliminar los valores atípicos.
+Procedemos a la generación de histogramas y de las gráficas quantile-quantile para entender la distribución de cada variable (predictor), sin eliminar los valores atípicos.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+```{r, histogramas_con_outliers,eval=TRUE,echo=TRUE}
 
 par(mfrow=c(2,2))
 for(i in 1:ncol(redWineData)) {
@@ -189,7 +193,7 @@ Observamos que casi todas las distribuciones están sesgadas positivamente. La c
 
 A continuación, se eliminaran los valores extremos de las variables con el objetivo de ver si podemos mejorar la distribución de las variables.
 
-```{r, tratamiento_outliers, eval=TRUE, echo=TRUE, warning=FALSE}
+```{r, tratamiento_outliers, eval=TRUE, echo=TRUE}
 eliminated_outliers <- redWineData
 for (i in 1:11) {
   # Q <- quantile(redWineData[[i]], probs=c(.25, .75), na.rm = FALSE)
@@ -209,11 +213,10 @@ dim(eliminated_outliers)
 Una vez eliminados los valores extremos, el tamaño del conjunto de datos se ha reducido a 1194 observaciones. Más adelante se volvera a comprobar la normalidad de las variables.
 
 
-#### 3.2.1. Exportación de los datos preprocesados
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-# Exportación de los datos limpios en .csv
+### 3.3. Exportación de los datos preprocesados
+```{r extraccion_fichero_limpio}
 write.csv(eliminated_outliers, "winequality-red_data_clean.csv")
+
 ```
 
 ## 4. Análisis de los datos
@@ -223,13 +226,12 @@ write.csv(eliminated_outliers, "winequality-red_data_clean.csv")
 Siendo nuestro objetivo principal definir cuales son los parámetros (variables) importantes para la definición de la calidad del vino, procederemos a utilizar todas las variables en nuestro conjunto de datos para los análisis que se efectuaran en esta práctica.
 
 ### 4.2. Comprobación de la normalidad y homogeneidad de la varianza.
-Procedemos a la generación de histogramas y de las gráficas quantile-quantile para entender la distribución de cada variable (predictor) utilizando el nuevo conjunto de datos con los valores atípicos eliminados.
+Procedemos a la generación de histogramas y de las gráficas quantile-quantile para entender la distribución de cada variable (predictor) utilizando el nuevo conjunto de datos con los valores atípicos eliminados. 
 
+### 4.2.1. Normalidad
 
+```{r, normalidad,eval=TRUE,echo=TRUE}
 
-#### 4.2.1. Normalidad
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
 par(mfrow=c(2,2))
 for(i in 1:ncol(eliminated_outliers)) {
   if (is.numeric(eliminated_outliers[,i])){
@@ -241,7 +243,11 @@ for(i in 1:ncol(eliminated_outliers)) {
       xlab=colnames(eliminated_outliers)[i], freq = FALSE)
   }
 }
+```
 
+Una vez eliminados los valores extremos, podemos ver que las variables se aproximan a una distribucion normal.
+\newpage
+```{r, shapiro_tests,eval=TRUE,echo=TRUE}
 par(mfrow=c(1,1))
 
 shapiro.test(eliminated_outliers$fixed.acidity);
@@ -255,27 +261,24 @@ shapiro.test(eliminated_outliers$alcohol);
 ```
 
 
-Una vez eliminados los valores extremos, podemos ver que las variables se aproximan a una distribucion normal.
 
 #### 4.2.2. Homogeneidad de la varianza
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-```
 
 
 \newpage
 
-### 4.3. Aplicación de pruebas estadísticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos tres métodos de análisis diferentes.
+###   4.3. Aplicación de pruebas estadísticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos tres métodos de análisis diferentes.
 
 
-#### 4.3.1. Correlaciones
+### 4.3.1. Correlaciones
 
 En primer lugar, procedemos a realizar un análisis de correlación entre las distintas variables
 para determinar cuáles de ellas ejercen una mayor influencia sobre la calidad del vino.
 
 Para ello, se creara una matriz de correlación, puesto que una vez eliminados los valores atípicos, nuestros datos siguen una distribución normal.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r, corrplot,eval=TRUE,echo=TRUE}
 corrplot(cor(eliminated_outliers), method = "circle")
 
 ggcorrplot(cor(eliminated_outliers), hc.order = TRUE, type = "lower", lab = TRUE, insig = "blank")
@@ -286,7 +289,7 @@ Mediante la matriz de correlación, podemos ver que la calidad de los vinos est�
 Tambien podemos observar las correlaciones entre las variables fixed.acidity - density (correlación fuerte), fixed.acidity - pH (correlación fuerte), fixed.acidity - citric.acid, volatie.acidity - citric.acid y total.sulfur.dioxide - free.sulfur.dioxide.
 
 
-```{r, correlacion,eval=TRUE,echo=TRUE}
+```{r, cor_function,eval=TRUE,echo=TRUE}
 cor(x=eliminated_outliers[1:11], y=eliminated_outliers$quality)
 ```
 Podemos ver que las variables están correlacionadas con quality de la siguiente manera
@@ -300,9 +303,9 @@ Podemos ver que las variables están correlacionadas con quality de la siguiente
 * density (-)
 * chlorides (-)
 
-#### 4.3.2. Modelo de regresión lineal
+### 4.3.2. Modelo de regresión lineal
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r, regresion_lineal,eval=TRUE,echo=TRUE}
 
 lm_modelo_1 <-  lm(quality ~., data = eliminated_outliers)
 
@@ -353,15 +356,17 @@ lm_modelo_4 <- lm( eliminated_outliers$quality ~ eliminated_outliers$alcohol
                    data = eliminated_outliers)
 
 
-tabla.coeficientes <- matrix(c(1, summary(lm_modelo_1)$r.squared, 
+tabla_coeficientes <- matrix(c(1, summary(lm_modelo_1)$r.squared, 
                                 2, summary(lm_modelo_2)$r.squared,
                                 3, summary(lm_modelo_3)$r.squared,
                                 4, summary(lm_modelo_4)$r.squared),
                                 ncol = 2, byrow = TRUE)
 
 
-colnames(tabla.coeficientes) <- c("Modelo", "R^2")
-tabla.coeficientes
+colnames(tabla_coeficientes) <- c("Modelo", "R^2")
+tabla_coeficientes <- as.table(tabla_coeficientes)
+
+tabla_coeficientes
 ```
 
 
@@ -383,4 +388,3 @@ contribuciones <- as.table(contribuciones)
 contribuciones
 
 ```
-\newpage

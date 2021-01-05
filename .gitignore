@@ -12,3 +12,4 @@ src/output/**
 .idea/*.xml
 .idea/.name
 .~lock*
+.Rhistory*
