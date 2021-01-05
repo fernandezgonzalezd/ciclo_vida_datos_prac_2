@@ -227,13 +227,13 @@ Siendo nuestro objetivo principal definir cuales son los parámetros (variables)
 
 ```{r, seleccion_datos,eval=TRUE,echo=TRUE}
 
-modelo_datos <- lm(quality ~ fixed.acidity + volatile.acidity + citric.acid + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol, 
-                 data = eliminated_outliers)
-summary(modelo_datos)
+lm_modelo_1 <- lm(quality ~., data = eliminated_outliers)
+summary(lm_modelo_1)
 
 
 ```
 
+\newpage
 ### 4.2. Comprobación de la normalidad y homogeneidad de la varianza.
 Procedemos a la generación de histogramas y de las gráficas quantile-quantile para entender la distribución de cada variable (predictor) utilizando el nuevo conjunto de datos con los valores atípicos eliminados. 
 
@@ -273,7 +273,7 @@ shapiro.test(eliminated_outliers$alcohol);
 
 ```{r, homoscedasticity,eval=TRUE,echo=TRUE}
 
-bptest(modelo_datos)
+bptest(lm_modelo_1)
 
 
 ```
@@ -317,55 +317,22 @@ Podemos ver que las variables están correlacionadas con quality de la siguiente
 
 ### 4.3.2. Modelo de regresión lineal
 
-```{r, regresion_lineal,eval=TRUE,echo=TRUE}
+```{r, regresion_lineal,eval=TRUE,echo=TRUE, size="small"}
 
-lm_modelo_1 <-  lm(quality ~., data = eliminated_outliers)
+lm_modelo_2 <- lm(quality ~ volatile.acidity + chlorides + free.sulfur.dioxide 
+  + total.sulfur.dioxide + pH + sulphates + alcohol, data = eliminated_outliers)
 
-lm_modelo_2 <- lm(eliminated_outliers$quality ~ eliminated_outliers$fixed.acidity 
-                  + eliminated_outliers$volatile.acidity 
-                  + eliminated_outliers$chlorides 
-                  + eliminated_outliers$free.sulfur.dioxide 
-                  + eliminated_outliers$total.sulfur.dioxide 
-                  + eliminated_outliers$pH 
-                  + eliminated_outliers$sulphates 
-                  + eliminated_outliers$alcohol, 
-                  data = eliminated_outliers)
+summary(lm_modelo_2)
 
-lm_modelo_3 <- lm(eliminated_outliers$quality ~ eliminated_outliers$volatile.acidity 
-                  + eliminated_outliers$chlorides 
-                  + eliminated_outliers$free.sulfur.dioxide 
-                  + eliminated_outliers$total.sulfur.dioxide 
-                  + eliminated_outliers$pH 
-                  + eliminated_outliers$sulphates 
-                  + eliminated_outliers$alcohol 
-                  + eliminated_outliers$volatile.acidity:eliminated_outliers$free.sulfur.dioxide 
-                  + eliminated_outliers$total.sulfur.dioxide:eliminated_outliers$sulphates 
-                  + eliminated_outliers$sulphates:eliminated_outliers$alcohol, 
-                  data = eliminated_outliers)
+lm_modelo_3 <- lm(quality ~ volatile.acidity + chlorides + free.sulfur.dioxide 
++ total.sulfur.dioxide + pH + sulphates + alcohol 
++ total.sulfur.dioxide:sulphates + sulphates:alcohol, data = eliminated_outliers)
+summary(lm_modelo_3)
 
-lm_modelo_4 <- lm( eliminated_outliers$quality ~ eliminated_outliers$alcohol 
-                   * eliminated_outliers$density 
-                   + eliminated_outliers$density 
-                   * eliminated_outliers$fixed.acidity 
-                   + eliminated_outliers$density 
-                   * eliminated_outliers$residual.sugar 
-                   + eliminated_outliers$density 
-                   * eliminated_outliers$chlorides 
-                   + eliminated_outliers$chlorides 
-                   * eliminated_outliers$sulphates 
-                   + eliminated_outliers$fixed.acidity 
-                   * eliminated_outliers$pH 
-                   + eliminated_outliers$fixed.acidity 
-                   * eliminated_outliers$citric.acid 
-                   + eliminated_outliers$citric.acid 
-                   * eliminated_outliers$pH 
-                   + eliminated_outliers$citric.acid 
-                   * eliminated_outliers$volatile.acidity 
-                   + eliminated_outliers$citric.acid 
-                   * eliminated_outliers$sulphates 
-                   + eliminated_outliers$volatile.acidity 
-                   * eliminated_outliers$sulphates, 
-                   data = eliminated_outliers)
+
+lm_modelo_4 <- lm(quality ~ volatile.acidity + total.sulfur.dioxide + pH 
++ total.sulfur.dioxide:sulphates + sulphates:alcohol, data = eliminated_outliers)
+summary(lm_modelo_4)
 
 
 tabla_coeficientes <- matrix(c(1, summary(lm_modelo_1)$r.squared, 
@@ -376,6 +343,8 @@ tabla_coeficientes <- matrix(c(1, summary(lm_modelo_1)$r.squared,
 
 
 colnames(tabla_coeficientes) <- c("Modelo", "R^2")
+rownames(tabla_coeficientes) <- c("modelo 1","model_linear_sig","model_linear_inter", "modelo 4")
+
 tabla_coeficientes <- as.table(tabla_coeficientes)
 
 tabla_coeficientes
