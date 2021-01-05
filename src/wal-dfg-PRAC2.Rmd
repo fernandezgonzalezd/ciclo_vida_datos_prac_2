@@ -124,8 +124,14 @@ head(redWineData)
 # Estadísticas básicas, verificamos algunas métricas sobre las variables
 summary(redWineData)
 
-describe(redWineData)
+summary(redWineData$quality)
+
+
 ```
+Hay 1599 observaciones de 12 variables numéricas.
+
+Quantity es una variable categórica y discreta, con una escala de 0 a 10. Los valores varían sólo de 3 a 8, con una media de 5,6 y una mediana de 6.
+Todas las demás variables parecen ser cantidades continuas (con la excepción de los sufijos .sulfur.dioxide).
 
 Todos los predictores son valores numéricos, los resultados son enteros.
 
@@ -139,9 +145,6 @@ Como podemos observar, no existen valores vacios en nuestro conjunto de datos.
 # Verificamos si existen valores vacios en el conjunto de datos
 colSums(is.na(redWineData))
 ```
-
-
-
 
 
 ### 3.2. Identificación y tratamiento de valores extremos.
@@ -183,39 +186,7 @@ dim(eliminated_outliers)
 
 ## 4. Análisis de los datos
 
-```{r, analisis_datos,eval=TRUE,echo=TRUE}
 
-
-par(mfrow=c(2,2))
-for(i in 1:ncol(eliminated_outliers)) {
-  if (is.numeric(eliminated_outliers[,i])){
-    qqnorm(eliminated_outliers[,i],main = paste("Normal Q-Q Plot ",colnames(eliminated_outliers)[i]))
-    qqline(eliminated_outliers[,i],col="red")
-    hist(eliminated_outliers[,i], 
-      main=paste("Hist. for ", colnames(eliminated_outliers)[i]), 
-      xlab=colnames(eliminated_outliers)[i], freq = FALSE)
-   
-  
- 
-  }
-}
-
-
-par(mfrow=c(1,1))
-
-
-shapiro.test(eliminated_outliers$fixed.acidity);
-  
-shapiro.test(eliminated_outliers$citric.acid);
-
-shapiro.test(eliminated_outliers$sulphates);
-
-
-shapiro.test(eliminated_outliers$alcohol);
-
-
-
-```
 
 ### 4.1. Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar).
 
@@ -286,13 +257,13 @@ Procedemos a la generación de histogramas para entender la distribución de cad
 
 for (i in 1:12) {
   ## Have a look at the densities
-  plot(density(redWineData[[i]]), main = names(redWineData)[i], xlab = "");
+  # plot(density(redWineData[[i]]), main = names(redWineData)[i], xlab = "");
   
   ## Perform the test
-  shapiro.test(redWineData[[i]]);
+  # shapiro.test(redWineData[[i]]);
   
   ## Plot using a qqplot
-  qqnorm(redWineData[[i]]);qqline(redWineData[[i]], col = 2)
+  # qqnorm(redWineData[[i]]);qqline(redWineData[[i]], col = 2)
 }
 
 ```
@@ -341,13 +312,13 @@ Podemos observar que casi todas las distribuciones están sesgadas positivamente
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 for (i in 1:12) {
   ## Have a look at the densities
-  plot(density(eliminated_outliers[[i]]), main = names(eliminated_outliers)[i]);
+  # plot(density(eliminated_outliers[[i]]), main = names(eliminated_outliers)[i]);
   
   ## Perform the test
-  shapiro.test(eliminated_outliers[[i]]);
+  # shapiro.test(eliminated_outliers[[i]]);
   
   ## Plot using a qqplot
-  qqnorm(eliminated_outliers[[i]]);qqline(eliminated_outliers[[i]], col = 2)
+  # qqnorm(eliminated_outliers[[i]]);qqline(eliminated_outliers[[i]], col = 2)
 }
 ```
 
@@ -400,5 +371,24 @@ Estas correlaciones se pueden verificar mediantes las pruebas de correlaciones d
 # }
 ```
 
+```{r, seleccion_grupos,eval=TRUE,echo=TRUE}
 
+
+cor(x=eliminated_outliers[1:11], y=eliminated_outliers$quality)
+
+
+
+```
+Podemos ver que las variables están correlacionadas con quality de la siguiente manera
+From previous we see that the following variables are correlated with quality:
+
+
+* alcohol (+++)
+* sulphates (+++)
+* volatile.acidity (--)
+* citric.acid (++)
+* fixed.acidity (+)
+* total.sulfur.dioxide (-)
+* density (-)
+* chlorides (-)
 
