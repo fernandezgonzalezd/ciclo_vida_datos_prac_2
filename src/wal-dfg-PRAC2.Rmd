@@ -266,11 +266,9 @@ shapiro.test(eliminated_outliers$citric.acid);
 shapiro.test(eliminated_outliers$sulphates);
 
 shapiro.test(eliminated_outliers$alcohol);
-
 ```
 
-
-
+\newpage
 ### 4.2.2. Homogeneidad de la varianza
 
 ```{r, homoscedasticity,eval=TRUE,echo=TRUE}
