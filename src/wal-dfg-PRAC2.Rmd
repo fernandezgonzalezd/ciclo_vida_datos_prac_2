@@ -336,15 +336,14 @@ lm_modelo_4 <- lm(quality ~ volatile.acidity + total.sulfur.dioxide + pH
 summary(lm_modelo_4)
 
 
-tabla_coeficientes <- matrix(c(1, summary(lm_modelo_1)$r.squared, 
-                                2, summary(lm_modelo_2)$r.squared,
-                                3, summary(lm_modelo_3)$r.squared,
-                                4, summary(lm_modelo_4)$r.squared),
+tabla_coeficientes <- matrix(c("modelo 1", summary(lm_modelo_1)$r.squared, 
+                                "model_linear_sig", summary(lm_modelo_2)$r.squared,
+                                "model_linear_inter", summary(lm_modelo_3)$r.squared,
+                                "modelo 4", summary(lm_modelo_4)$r.squared),
                                 ncol = 2, byrow = TRUE)
 
 
 colnames(tabla_coeficientes) <- c("Modelo", "R^2")
-rownames(tabla_coeficientes) <- c("modelo 1","model_linear_sig","model_linear_inter", "modelo 4")
 
 tabla_coeficientes <- as.table(tabla_coeficientes)
 
