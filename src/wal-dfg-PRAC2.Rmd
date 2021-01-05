@@ -90,6 +90,7 @@ Primer contacto con el conjunto de datos, visualizamos su estructura.
 library(ggplot2)
 library(dplyr)
 library(psych)
+library(nortest)
 
 if(!require(corrplot)){
     install.packages('corrplot', repos='http://cran.us.r-project.org')
@@ -186,13 +187,35 @@ dim(eliminated_outliers)
 
 ## 4. Análisis de los datos
 
-
-
 ### 4.1. Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar).
 
 
-### 4.2. Comprobación de la normalidad y homogeneidad de la varianza.
 
+Podemos observar que casi todas las distribuciones están sesgadas positivamente. Las variables pH, density y quality tienen una distribución aproximadamente normal.
+
+### 4.2. Comprobación de la normalidad y homogeneidad de la varianza.
+Procedemos a la generación de histogramas y de las gráficas quantile-quantile para entender la distribución de cada variable (predictor).
+
+
+```{r, normalidad,eval=TRUE,echo=TRUE}
+
+par(mfrow=c(2,2))
+for(i in 1:ncol(eliminated_outliers)) {
+  if (is.numeric(eliminated_outliers[,i])){
+    qqnorm(eliminated_outliers[,i],main = paste("Normal Q-Q Plot for ",colnames(eliminated_outliers)[i]))
+    qqline(eliminated_outliers[,i],col="red")
+    hist(eliminated_outliers[,i], 
+      main=paste("Histogram for ", colnames(eliminated_outliers)[i]), 
+      xlab=colnames(eliminated_outliers)[i], freq = FALSE)
+  }
+}
+
+
+```
+
+
+
+\newpage
 
 ### 4.3. Aplicación de pruebas estadísticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc. Aplicar al menos tres métodos de análisis diferentes.
 
@@ -212,115 +235,66 @@ contribuciones <- as.table(contribuciones)
 contribuciones
 
 ```
-
-
-
+\newpage
 
 Procedemos a la generación de histogramas para entender la distribución de cada variable (predictor).
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r, seleccion_grupos,eval=TRUE,echo=TRUE}
+par(mfrow=c(1,3))
+
 # # Histograma de la variable Fixed Acidity
-# hist(fixed.acidity, main = "Red Wine fixed acidity", xlab="Red Wine Fixed Acidity concentration", col="Blue")
-# 
-# # Histograma de la variable Volatile Acidity
-# hist(volatile.acidity, main = "Red Wine volatile Acidity distribution", xlab="Red Wine Volatile Acidity concentration", col="Orange")
-# 
-# # Histograma de la variable Citric Acid
-# hist(citric.acid, main = "Red Wine Citric acid distribution", xlab="Red Wine Citric Acid concentration", col="Yellow")
-# 
-# # Histograma de la variable Residual Sugar
-# hist(residual.sugar, main = "Red Wine Residual Sugar distribution", xlab="Red Wine Residual Sugar concentration", col="Green")
-# 
-# # Histograma de la variable Chlorides
-# hist(chlorides, main = "Red Wine Chloride distribution", xlab="Red Wine Chloride concentration", col="Cyan")
-# 
-# # Histograma de la variable Free Sulfur Dioxide
-# hist(free.sulfur.dioxide, main = "Red Wine Free Sulfur Dioxide distribution", xlab="Red Wine Free Sulfur Dioxide concentration", col="Violet")
-# 
-# # Histograma de la variable Total Sulfur Dioxide
-# hist(total.sulfur.dioxide, main = "Red Wine Total Sulfur Dioxide distribution", xlab="Red Wine Total Sulfur Dioxide concentration", col="Magenta")
-# 
-# # Histograma de la variable Alcohol
-# hist(alcohol, main = "Red Wine Alcohol distribution", xlab="Red Wine Alcohol concentration", col="Grey")
-# 
-# # Histograma de la variable Density
-# hist(density, main = "Red Wine Density distribution", xlab="Density", col="Red")
-# 
-# # Histograma de la variable pH
-# hist(pH, main = "Red Wine pH distribution", xlab="Red Wine pH concentration",col="Brown")
-# 
-# # Histograma de la variable Sulphates
-# hist(sulphates, main = "Red Wine sulphates distribution", xlab="Red Wine sulphates concentration", col="Dark Blue")
-# 
-# # Histograma de la variable quality
-# hist(quality, breaks=6, col="Dark Green",xlab="Red Wine Quality Rating, low=1 high=7", main="Red Wine Quality  distribution")
+# with(eliminated_outliers, hist(fixed.acidity, main = "Red Wine fixed acidity", xlab="Red Wine Fixed Acidity # concentration", col="Blue"))
+
+# Histograma de la variable Volatile Acidity
+# with(eliminated_outliers, hist(volatile.acidity, main = "Red Wine volatile Acidity distribution", xlab="Red Wine Volatile Acidity concentration", col="Orange"))
+
+# Histograma de la variable Citric Acid
+# with(eliminated_outliers, hist(citric.acid, main = "Red Wine Citric acid distribution", xlab="Red Wine Citric Acid concentration", col="Yellow"))
+
+# Histograma de la variable Residual Sugar
+# with(eliminated_outliers, hist(residual.sugar, main = "Red Wine Residual Sugar distribution", xlab="Red Wine Residual Sugar concentration", col="Green"))
+ 
+# Histograma de la variable Chlorides
+# with(eliminated_outliers, hist(chlorides, main = "Red Wine Chloride distribution", xlab="Red Wine Chloride concentration", col="Cyan"))
+
+# Histograma de la variable Free Sulfur Dioxide
+# with(eliminated_outliers,  hist(free.sulfur.dioxide, main = "Red Wine Free Sulfur Dioxide distribution", xlab="Red Wine Free Sulfur Dioxide concentration", col="Violet"))
+
+# Histograma de la variable Total Sulfur Dioxide
+# with(eliminated_outliers, hist(total.sulfur.dioxide, main = "Red Wine Total Sulfur Dioxide distribution", xlab="Red Wine Total Sulfur Dioxide concentration", col="Magenta"))
+
+# Histograma de la variable Alcohol
+# with(eliminated_outliers, hist(alcohol, main = "Red Wine Alcohol distribution", xlab="Red Wine Alcohol concentration", col="Grey"))
+
+# Histograma de la variable Density
+# with(eliminated_outliers, hist(density, main = "Red Wine Density distribution", xlab="Density", col="Red"))
+
+# Histograma de la variable pH
+# with(eliminated_outliers, hist(pH, main = "Red Wine pH distribution", xlab="Red Wine pH concentration",col="Brown"))
+
+# Histograma de la variable Sulphates
+# with(eliminated_outliers, hist(sulphates, main = "Red Wine sulphates distribution", xlab="Red Wine sulphates concentration", col="Dark Blue"))
+
+# Histograma de la variable quality
+# with(eliminated_outliers, hist(quality, breaks=6, col="Dark Green",xlab="Red Wine Quality Rating, low=1 high=7", main="Red Wine Quality  distribution"))
+
+
+par(mfrow=c(1,2))
 
 for (i in 1:12) {
   ## Have a look at the densities
-  # plot(density(redWineData[[i]]), main = names(redWineData)[i], xlab = "");
-  
-  ## Perform the test
-  # shapiro.test(redWineData[[i]]);
-  
-  ## Plot using a qqplot
-  # qqnorm(redWineData[[i]]);qqline(redWineData[[i]], col = 2)
-}
-
-```
-
-Podemos observar que casi todas las distribuciones están sesgadas positivamente. Las variables pH, density y quality tienen una distribución aproximadamente normal.
-
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-# # Histograma de la variable Fixed Acidity
-# hist(eliminated_outliers$fixed.acidity, main = "Red Wine fixed acidity", xlab="Red Wine Fixed Acidity concentration", col="Blue")
-# 
-# # Histograma de la variable Volatile Acidity
-# hist(eliminated_outliers$volatile.acidity, main = "Red Wine volatile Acidity distribution", xlab="Red Wine Volatile Acidity concentration", col="Orange")
-# 
-# # Histograma de la variable Citric Acid
-# hist(eliminated_outliers$citric.acid, main = "Red Wine Citric acid distribution", xlab="Red Wine Citric Acid concentration", col="Yellow")
-# 
-# # Histograma de la variable Residual Sugar
-# hist(eliminated_outliers$residual.sugar, main = "Red Wine Residual Sugar distribution", xlab="Red Wine Residual Sugar concentration", col="Green")
-# 
-# # Histograma de la variable Chlorides
-# hist(eliminated_outliers$chlorides, main = "Red Wine Chloride distribution", xlab="Red Wine Chloride concentration", col="Cyan")
-# 
-# # Histograma de la variable Free Sulfur Dioxide
-# hist(eliminated_outliers$free.sulfur.dioxide, main = "Red Wine Free Sulfur Dioxide distribution", xlab="Red Wine Free Sulfur Dioxide concentration", col="Violet")
-# 
-# # Histograma de la variable Total Sulfur Dioxide
-# hist(eliminated_outliers$total.sulfur.dioxide, main = "Red Wine Total Sulfur Dioxide distribution", xlab="Red Wine Total Sulfur Dioxide concentration", col="Magenta")
-# 
-# # Histograma de la variable Alcohol
-# hist(eliminated_outliers$alcohol, main = "Red Wine Alcohol distribution", xlab="Red Wine Alcohol concentration", col="Grey")
-# 
-# # Histograma de la variable Density
-# hist(eliminated_outliers$density, main = "Red Wine Density distribution", xlab="Density", col="Red")
-# 
-# # Histograma de la variable pH
-# hist(eliminated_outliers$pH, main = "Red Wine pH distribution", xlab="Red Wine pH concentration",col="Brown")
-# 
-# # Histograma de la variable Sulphates
-# hist(eliminated_outliers$sulphates, main = "Red Wine sulphates distribution", xlab="Red Wine sulphates concentration", col="Dark Blue")
-# 
-# # Histograma de la variable quality
-# hist(eliminated_outliers$quality, breaks=6, col="Dark Green",xlab="Red Wine Quality Rating, low=1 high=7", main="Red Wine Quality  distribution")
-```
-
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-for (i in 1:12) {
-  ## Have a look at the densities
-  # plot(density(eliminated_outliers[[i]]), main = names(eliminated_outliers)[i]);
-  
-  ## Perform the test
-  # shapiro.test(eliminated_outliers[[i]]);
+  # plot(density(eliminated_outliers[[i]]), main = names(eliminated_outliers)[i], xlab = "");
   
   ## Plot using a qqplot
   # qqnorm(eliminated_outliers[[i]]);qqline(eliminated_outliers[[i]], col = 2)
 }
+
+
 ```
+
+
+
+
 
 
 ### Exportación de los datos preprocesados
@@ -371,7 +345,7 @@ Estas correlaciones se pueden verificar mediantes las pruebas de correlaciones d
 # }
 ```
 
-```{r, seleccion_grupos,eval=TRUE,echo=TRUE}
+```{r, correlacion,eval=TRUE,echo=TRUE}
 
 
 cor(x=eliminated_outliers[1:11], y=eliminated_outliers$quality)
