@@ -49,6 +49,7 @@ library(ggplot2)
 library(dplyr)
 library(psych)
 library(lmtest)
+library(caret)
 
 if(!require(corrplot)){
     install.packages('corrplot', repos='http://cran.us.r-project.org')
@@ -360,7 +361,13 @@ model_logit <- glm(quality ~., family = binomial(link = 'logit'), data = elimina
 summary(model_logit)
 
 
+exp(cbind(coef(model_logit),confint(model_logit)))
+
+confusionMatrix(table(predict(model_logit, type="response") >= 0.5,eliminated_outliers_mutated$quality == 1))
 ```
+Con este modelo de regresión obtenemos una estimación de la precisión de 0.7496 (pero henos clasificado el vino en bueno o malo).
+
+\newpage
 
 ## 5. Representación de los resultados a partir de tablas y gráficas.
 
