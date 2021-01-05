@@ -351,6 +351,17 @@ tabla_coeficientes
 ```
 
 
+### 4.3.2. Modelo de regresión logística
+```{r, regresion_logistica,eval=TRUE,echo=TRUE}
+
+eliminated_outliers_mutated <- mutate(eliminated_outliers, quality = ifelse(quality > 5, 1, 0))
+
+model_logit <- glm(quality ~., family = binomial(link = 'logit'), data = eliminated_outliers_mutated )
+summary(model_logit)
+
+
+```
+
 ## 5. Representación de los resultados a partir de tablas y gráficas.
 
 ## 6. Resolución del problema. A partir de los resultados obtenidos, ¿cuáles son las conclusiones? ¿Los resultados permiten responder al problema?
