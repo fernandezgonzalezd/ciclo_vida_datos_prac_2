@@ -48,7 +48,7 @@ library(knitr)
 library(ggplot2)
 library(dplyr)
 library(psych)
-library(nortest)
+library(lmtest)
 
 if(!require(corrplot)){
     install.packages('corrplot', repos='http://cran.us.r-project.org')
@@ -129,6 +129,7 @@ summary(redWineData)
 
 summary(redWineData$quality)
 
+table(redWineData$quality)
 
 ```
 Hay 1599 observaciones de 12 variables numéricas.
@@ -222,8 +223,16 @@ write.csv(eliminated_outliers, "winequality-red_data_clean.csv")
 ## 4. Análisis de los datos
 
 ### 4.1. Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar).
-
 Siendo nuestro objetivo principal definir cuales son los parámetros (variables) importantes para la definición de la calidad del vino, procederemos a utilizar todas las variables en nuestro conjunto de datos para los análisis que se efectuaran en esta práctica.
+
+```{r, seleccion_datos,eval=TRUE,echo=TRUE}
+
+modelo_datos <- lm(quality ~ fixed.acidity + volatile.acidity + citric.acid + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol, 
+                 data = eliminated_outliers)
+summary(modelo_datos)
+
+
+```
 
 ### 4.2. Comprobación de la normalidad y homogeneidad de la varianza.
 Procedemos a la generación de histogramas y de las gráficas quantile-quantile para entender la distribución de cada variable (predictor) utilizando el nuevo conjunto de datos con los valores atípicos eliminados. 
@@ -262,9 +271,14 @@ shapiro.test(eliminated_outliers$alcohol);
 
 
 
-#### 4.2.2. Homogeneidad de la varianza
+### 4.2.2. Homogeneidad de la varianza
+
+```{r, homoscedasticity,eval=TRUE,echo=TRUE}
+
+bptest(modelo_datos)
 
 
+```
 
 \newpage
 
